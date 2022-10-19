@@ -1,0 +1,439 @@
+#ONE’S COMPLEMENT OF AN 8-BIT NUMBER
+
+LDA 5100H 
+CMA 
+STA 5101H 
+HLT
+
+-------------------------------
+
+#2’S COMPLEMENT OF AN 8-BIT NUMBER
+
+LDA 5100H 
+CMA 
+INR A 
+STA 5101H 
+HLT
+
+------------------------------
+# ADD N- bit number
+
+	LXI H,8000H
+	MOV C,M
+	LXI H,8010H
+	XRA A
+	MOV E,A
+LOOP: 	ADD M
+	JNC NEXT 
+	INR E
+NEXT:   DCR C
+	INX H
+	JNZ LOOP
+	LXI H,9000H
+	MOV M,A
+	INX H
+	MOV M,E
+	HLT
+
+---------------------------------------
+# ascending order
+
+          LXI H,5000    ;Set pointer for array     
+          MOV C,M       ;Load the Count 
+          DCR C         ;Decrement Count
+  REPEAT: MOV D,C 
+          LXI H,5001 
+    LOOP: MOV A,M       ;copy content of memory location to Accumulator
+          INX H 
+          CMP M 
+          JC SKIP       ;jump to skip if carry generated
+          MOV B,M       ;copy content of memory location to B - Register
+          MOV M,A       ;copy content of Accumulator to memory location
+          DCX H         ;Decrement content of HL pair of registers
+          MOV M,B       ;copy content of B - Register to memory location
+          INX H         ;Increment content of HL pair of registers
+    SKIP: DCR D         ;Decrement content of Register - D
+          JNZ LOOP      ;jump to loop if not equal to zero
+          DCR C         ;Decrement count
+          JNZ REPEAT    ;jump to repeat if not equal to zero
+          HLT           ;Terminate Program
+
+------------------------------------
+# descending order
+        LXI H,5000      ;Set pointer for array
+        MOV C,M         ;Load the Count 
+        DCR C            ;Decrement Count
+REPEAT: MOV D,C          
+        LXI H,5001      ;Load starting address of data array
+LOOP:   MOV A,M      ;copy content of memory location to Accumulator
+        INX H           
+        CMP M           
+        JNC SKIP        ;Jump to skip if carry not generated
+        MOV B,M         ;copy content of memory location to B - Register
+        MOV M,A         ;copy content of A - Register to memory location
+        DCX H            ;Decrement content of HL pair of registers
+        MOV M,B         
+        INX H            ;Increment content of HL pair of registers
+SKIP:   DCR D           
+        JNZ LOOP       ;Jump to LOOP if not Zero
+        DCR C            ;Decrement Count
+        JNZ REPEAT     ;Jump to REPEAT if not Zero  
+        HLT                ;Terminate Program
+
+
+--------------------------------
+# add 1st 10 even numbers
+
+MVI B,10
+MVI C,02
+MVI A,00
+LOOP:    ADD C
+    INR C
+    INR C
+    DCR B
+    JNZ LOOP
+    STA 2000H
+HLT
+
+----------------------------------
+# add 1st 10 odd numbers
+
+MVI B,10
+MVI C,01
+MVI A,00
+LOOP:    ADD C
+    INR C
+    INR C
+    DCR B
+    JNZ LOOP
+    STA 2000H
+HLT
+
+------------------------------------
+
+#Copy 10 numbers stored from the location 2050H to the new location 2070H
+
+START: LXI H, 2050H
+       LXI D, 2070H
+       MVI B, 0AH
+NEXT:  MOV A, M
+       STAX D
+       INX H
+       INX D
+       DCR B
+       JNZ NEXT
+       HLT
+
+--------------------------------
+
+#8-bit Addition without carry : Addition of 2 numbers 15H and 10H
+
+LDA 7000H
+MOV B, A
+LDA 7001H
+ADD B
+STA 7002H
+HLT
+
+--------------------------------
+
+#8-bit Addition with carry : Addition of 2 numbers 250 and 30
+
+       MVI C,00H
+       LDA 7000H
+       MOV B,A
+       LDA 7001H
+       ADD B
+       JNC ahead
+       INR C
+ahead: STA 7002H
+       MOV A,C
+       STA 7003H
+       HLT
+
+-------------------------------
+
+#8-bit Subtraction : Subtraction of 2 numbers 40H and 15H
+
+LDA 3000H
+MOV B,A
+LDA 3001H
+MOV C,A
+MOV A,B
+SUB C
+STA 3002H
+HLT
+
+----------------------------------
+
+#8-bit Multiplication : Multiplying 2 numbers 12H and 03H
+
+        MVI A,12H
+        MOV B,A
+        MVI C,03H
+        MVI A,00H
+Label1: ADD B
+        DCR C
+        JNZ Label1
+        STA 2001H
+        HLT
+
+----------------------------------
+
+#8-bit Division : Division of 2 numbers : Dividend -> 4AH & Divisor -> 08H
+
+      LDA 2050H 
+      MOV B,A 
+      LDA 2051H 
+      MVI C, 00H 
+Next: CMP B
+      JC Loop 
+      INR C 
+      SUB B 
+      JMP Next 
+Loop: STA 2052H 
+      MOV A,C 
+      STA 2053H 
+      HLT 
+
+-----------------------------------
+
+#16-bit Addition : Addition of 2 numbers 1020H & 2040H
+
+LHLD 8501H 
+XCHG 
+LHLD 8503H 
+MOV A,E 
+ADD L 
+MOV L,A 
+MOV A,D 
+ADD H 
+MOV H,A 
+SHLD 8505H 
+HLT
+
+-----------------------------------------
+
+#16-bit Subtraction : Subtraction of 2 numbers 2040H & 1020H
+
+LHLD 8501H 
+XCHG 
+LHLD 8503H 
+MOV A,E 
+SUB L 
+MOV L,A 
+MOV A,D 
+SBB H 
+MOV H,A 
+SHLD 8505H 
+HLT
+
+-------------------------------------------
+
+#Write an assembly program in mnemonic code for 8085 processor to calculate
+(A+B)-C where the value of
+A stored the value 34H at address 2300H
+B stored the value 47H at address 2301H
+C stored the value ABH at address 2302H
+
+LDA 2302H
+MOV C,A
+LDA 2301H
+MOV B,A
+LDA 2300H
+ADD B
+SUB C
+CMA
+INR A
+STA 2303H
+HLT
+
+----------------------------------------
+
+#Write an ALP (Assembly Level Language) to add 10 numbers stored in the 
+consecutive memory locations starting from 2000H.
+Write the code using conditional jump instruction. 
+Store the final result in 200AH.
+
+       LDA 2000H
+       MOV B,A
+       LXI H,2051H
+       MVI A,00
+       MVI C,00
+LOOP1: ADD M
+       INR L
+       JNC LOOP2
+LOOP2: DCR B
+       JNZ LOOP1
+       STA 200AH
+       MOV A,C
+       STA 200BH
+       HLT
+
+---------------------------------------
+
+#Write the assembly program for the given object code where the 
+starting address of the program is 4200H
+
+LDA 2500H   // 3 bytes
+MOV B,A     // 1 byte
+LDA 2501H   // 3 bytes
+SUB B       // 1 byte
+STA 2502H   // 3 bytes
+HLT         // 1 byte
+
+--------
+        MVI A, 12H   // 2 bytes
+        MOV B, A     // 1 byte
+        MVI C, 03H   // 2 bytes
+        MVI A, 00H   // 2 bytes
+Label1: ADD B        // 1 byte
+        DCR C        // 1 byte
+        JNZ Label1   // 3 bytes
+        STA 2001H    // 3 bytes
+        HLT          // 1 byte
+--------
+
+-------------------------------------
+
+#Write an assembly language program using loops 
+to add the numbers starting from 1 to 50. B=1+2+3+………..+49+50
+
+        MVI c,10  
+        MVI A,00H 
+Label1: ADD C 
+        DCR C 
+        JNZ Label1 
+        STA 2300H 
+        HLT
+
+--------------------------------------
+
+#Find the largest from an array of data
+
+       LXI H,2000 
+       MOV B,M 
+       INX H
+       MOV A,M 
+       DCR B 
+LOOP:  INX H
+       CMP M
+       JNC AHEAD
+       MOV A,M 
+AHEAD: DCR B
+       JNZ LOOP 
+       STA 4300
+       HLT
+
+--------------------------------
+
+#Find the smallest from an array of data
+
+       LXI H,4200 
+	 MOV B,M         
+       INX  H         
+       MOV A,M
+       DCR B         
+LOOP:  INX H
+       CMP M         
+       JC AHEAD
+       MOV A,M        
+AHEAD: DCR B
+       JNZ LOOP   
+       STA 4300        
+       HLT
+
+--------------------------------
+
+Design a simple 8-bit calculatorthat canperform simple arithmetic and 
+logical operations–{ Add, Sub, Mul, Div, And, Or, Not, Xor }
+
+
+			MVI C,01H
+			MVI A,01H
+			CMP C
+			JZ ADDITION
+			MVI A,02H
+			CMP C
+			JZ SUBTRACTION
+			MVI A,03H
+			CMP C
+			JZ MULTIPLICATION
+			MVI A,04H
+			CMP C
+			JZ DIVISION
+			MVI A,05H
+			CMP C
+			JZ AND
+			MVI A,06H
+			CMP C
+			JZ OR
+			MVI A,07H
+			CMP C
+			JZ NOT
+			MVI A,08H
+			CMP C
+			JZ XOR
+  	  ADDITION: LDA 2500H
+        		MOV B,A
+        		LDA 2501H
+        		ADD B
+        		STA 2502H
+        		HLT
+     SUBTRACTION: LDA 2500H
+        		MOV B,A
+        		LDA 2501H
+        		SUB B
+        		STA 2502H
+        		HLT
+  MULTIPLICATION: LDA 2500H
+        		MOV B,A
+        		LDA 2501H
+        		MOV C,A
+        		MVI A,00H
+          label1: ADD B
+            	DCR C
+            	JNZ label1
+            	STA 2502H
+            	HLT
+        DIVISION: LDA 2500H
+        		MOV B, A
+        		LDA 2501H
+        		MVI C, 00H
+	      Next: CMP B
+            	JC Loop
+            	INR C   
+            	SUB B
+            	JMP Next     
+            Loop: STA 2503H        
+            	MOV A, C
+            	STA 2502H
+            	HLT
+;Logical AND
+	       AND: LDA 2500H
+    	 		MOV B,A
+ 			LDA 2501H
+     			ANA B
+     			STA 2502H
+     			HLT
+;Logical OR
+	        OR: LDA 2500H
+     			MOV B,A
+     			LDA 2501H
+     			ORA B
+     			STA 2502H
+     			HLT
+;Logical NOT
+	       NOT: LDA 2501H
+     			ANA A
+     			STA 2502H
+     			HLT
+;Logical XOR
+	       XOR: LDA 2500H
+     			MOV B,A
+     			LDA 2501H
+     			ORA B
+     			STA 2502H
+     			HLT
+
+-----------------------------------------
